@@ -31,11 +31,11 @@
 // The setup function runs once when you press reset or power the board
 void setup() {
   Serial.begin(115200);                  // Start talking to the computer at 115200 baud
-  Serial.println("Arduino ready!");    // When does this line print?
+  Serial.print("Count: ");    // When does this line print?    // When does this line print?
 }
 
 // The loop function runs over and over again forever
 void loop() {
-  Serial.println("...your own message here...");
+  Serial.print(42);
   delay(1000);
 }
