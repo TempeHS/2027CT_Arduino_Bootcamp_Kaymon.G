@@ -36,14 +36,25 @@
     https://www.arduino.cc/reference/en/#structure
     https://www.arduino.cc/reference/en/language/functions/digital-io/digitalread/
 */
-
-const int BUTTON_PIN = 4;  // Grove Button on D4
-const int LED_PIN = 6;     // Grove LED on D6
+const int LINE_PIN = 7;  // Grove Line Finder on D7
+const int LED_PIN  = 6;  // Grove LED on D6
 
 void setup() {
-
+  pinMode(LED_PIN, OUTPUT);
+  pinMode(LINE_PIN, INPUT);
+  Serial.begin(115200);
 }
 
 void loop() {
+  int lineState = digitalRead(LINE_PIN);   // HIGH or LOW
+  digitalWrite(LED_PIN, lineState);        // mirror sensor state to LED
 
+  Serial.print("Line state: ");
+  if (lineState == HIGH) {
+    Serial.println("HIGH");
+  } else {
+    Serial.println("LOW");
+  }
+
+  delay(100);
 }
