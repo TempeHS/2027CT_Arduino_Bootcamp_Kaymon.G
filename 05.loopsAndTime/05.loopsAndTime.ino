@@ -39,9 +39,28 @@ const int BUZZER_PIN = 5;  // Grove Buzzer on D5
 const int LED_PIN = 6;     // Grove LED on D6
 
 void setup() {
+  Serial.begin(115200);
+
+  Serial.println("Counting up:");
+  for (int i = 0; i < 10; i++) {
+    Serial.println(i);
+  }
+  Serial.println("Done!");
 
 }
-
+unsigned long previousBlink = 0;
+const long INTERVAL = 1000;
+int ledState = LOW;
 void loop() {
+  unsigned long now = millis();
 
+  if (now - previousBlink >= INTERVAL) {
+    previousBlink = now;
+    ledState = !ledState;            // flip HIGH to LOW and back
+    digitalWrite(LED_PIN, ledState);
+  }
+
+  if (digitalRead(BUTTON_PIN) == HIGH) {
+    Serial.println("Button pressed!");
+  }
 }

@@ -42,9 +42,13 @@ const int LED_PIN = 6;     // Grove LED on D6 (PWM)
 const int BUZZER_PIN = 5;  // Grove Buzzer on D5 (PWM)
 
 void setup() {
-
+pinMode(BUZZER_PIN, 255);   // value from 0 (always off) to 255 (always on)
 }
 
 void loop() {
+
+
+  tone(BUZZER_PIN, 50);   // middle C
+  delay(500);
 
 }

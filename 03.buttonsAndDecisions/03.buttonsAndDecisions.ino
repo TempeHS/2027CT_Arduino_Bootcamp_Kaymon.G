@@ -46,7 +46,8 @@ void setup() {
 }
 
 void loop() {
-  int lineState = digitalRead(LINE_PIN);   // HIGH or LOW
+  int lineState = digitalRead(LINE_PIN);
+  int LEDState =  digitalRead(LED_PIN);  // HIGH or LOW
   digitalWrite(LED_PIN, lineState);        // mirror sensor state to LED
 
   Serial.print("Line state: ");
