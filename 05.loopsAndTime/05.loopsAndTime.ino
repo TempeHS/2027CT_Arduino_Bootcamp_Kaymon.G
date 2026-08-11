@@ -41,26 +41,44 @@ const int LED_PIN = 6;     // Grove LED on D6
 void setup() {
   Serial.begin(115200);
 
-  Serial.println("Counting up:");
-  for (int i = 0; i < 10; i++) {
-    Serial.println(i);
-  }
-  Serial.println("Done!");
+
+  pinMode(BUTTON_PIN, INPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
+
+  randomSeed(analogRead(A0));  // simple seed source
+  Serial.println("Reaction Timer Ready");
 
 }
-unsigned long previousBlink = 0;
-const long INTERVAL = 1000;
-int ledState = LOW;
+
 void loop() {
-  unsigned long now = millis();
-
-  if (now - previousBlink >= INTERVAL) {
-    previousBlink = now;
-    ledState = !ledState;            // flip HIGH to LOW and back
-    digitalWrite(LED_PIN, ledState);
+ // Make sure button is released before a new round
+  while (digitalRead(BUTTON_PIN) == HIGH) {
+    // wait
   }
 
-  if (digitalRead(BUTTON_PIN) == HIGH) {
-    Serial.println("Button pressed!");
+  Serial.println("Get ready...");
+  delay(random(2000, 5000));  // blocking is fine before timing starts
+
+  digitalWrite(LED_PIN, HIGH);
+  unsigned long startTime = millis();
+
+  while (digitalRead(BUTTON_PIN) == LOW) {
+    // wait for press (intentional empty loop)
   }
+
+  unsigned long reactionMs = millis() - startTime;
+  digitalWrite(LED_PIN, LOW);
+
+  Serial.print("Reaction time: ");
+  Serial.print(reactionMs);
+  Serial.println(" ms");
+
+  if (reactionMs < 250) {
+    tone(BUZZER_PIN, 988, 100);
+    delay(120);
+    tone(BUZZER_PIN, 1319, 140);
+  }
+
+  delay(800);  // brief gap before next round
 }
