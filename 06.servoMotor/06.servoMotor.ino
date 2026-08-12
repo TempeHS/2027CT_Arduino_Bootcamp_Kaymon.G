@@ -32,15 +32,23 @@
 
 #include <Servo.h>
 
-const int SERVO_PIN = 3;  // Grove connector to D3 (PWM capable)
-const int POT_PIN = A0;   // Grove Potentiometer on A0
-
 Servo myServo;
 
-void setup() {
+const int SERVO_PIN = A1;
+const int POT_PIN = A0;
 
+void setup() {
+  pinMode(POT_PIN, INPUT);
+  myServo.attach(SERVO_PIN);   // servo signal on D3
+  myServo.write(90);           // move to the middle
 }
 
 void loop() {
+  int value = analogRead(POT_PIN);
+  int angle = map(value, 0, 1023, 0, 180);
+  myServo.write(angle);
 
-}
+  }
+      // move to the middle
+
+
