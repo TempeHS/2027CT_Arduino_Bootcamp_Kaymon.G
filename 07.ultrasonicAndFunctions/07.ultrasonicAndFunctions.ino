@@ -37,15 +37,59 @@
 
 #include "Ultrasonic.h"
 
-Ultrasonic ultrasonic(2);  // Grove 3-pin ultrasonic on D2 (single signal pin)
+Ultrasonic ultrasonic(2);   // Grove 3-pin sensor: trigger and echo share D2
 
-const int BUZZER_PIN = 5;  // Grove Buzzer on D5
-const int LED_PIN = 6;     // Grove LED on D6
+
+
+const int BUZZER_PIN = 5;
+const int LED_PIN = 6;
+
+void showAlert(int zone) {
+  if (zone == 2) {                     // safe: silent, LED off
+    digitalWrite(LED_PIN, LOW);
+    noTone(BUZZER_PIN);
+  } else if (zone == 1) {              // warning: LED on, slow beep
+    digitalWrite(LED_PIN, HIGH);
+    tone(BUZZER_PIN, 1000, 100);
+    delay(500);
+  } else {                             // danger (zone 0): LED on, fast beep
+    digitalWrite(LED_PIN, HIGH);
+    tone(BUZZER_PIN, 2000, 80);
+    delay(120);
+  }
+}
+
+void logStatus(int distance, int zone) {
+  Serial.print("Distance:");
+  Serial.print(distance);
+  Serial.print(",Zone:");
+  Serial.println(zone);
+}
+
 
 void setup() {
+  Serial.begin(115200);
+  pinMode(BUZZER_PIN, OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
+}
 
+
+int readDistance() {
+  return ultrasonic.read();
+}
+
+int classifyZone(int distance, int nearLimit, int farLimit) {
+  if (distance < nearLimit) {
+    return 0;              // danger
+  } else if (distance < farLimit) {
+    return 1;              // warning
+  }
+  return 2;                // safe
 }
 
 void loop() {
-
+  int distance = readDistance();
+  int zone = classifyZone(distance, 10, 30);
+  showAlert(zone);
+  logStatus(distance, zone);
 }
