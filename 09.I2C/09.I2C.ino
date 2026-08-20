@@ -43,13 +43,60 @@
     https://sensorkit.arduino.cc/
     https://www.arduino.cc/reference/en/language/functions/communication/wire/
 */
+#define Environment Environment_I2C
+#include "Arduino_SensorKit.h"
 
-#include <Wire.h>
+const float TEMP_LIMIT = 28.0; // change to a limit that makes sense for your room
+
+float temperature = 0.0;
+float humidity = 0.0;
+
+unsigned long lastUpdate = 0;
+const unsigned long UPDATE_INTERVAL = 500;
+void readSensor() {
+  temperature = Environment.readTemperature();
+  humidity = Environment.readHumidity();
+
+  Serial.print("Temp: ");
+  Serial.print(temperature);
+  Serial.print(" C  Humidity: ");
+  Serial.print(humidity);
+  Serial.println(" %");
+}
+
+void updateDisplay() {
+  Oled.clearDisplay();
+  Oled.setCursor(0, 0);
+  Oled.print("Temp: ");
+  Oled.print(temperature);
+  Oled.println(" C");
+  Oled.print("Humidity: ");
+  Oled.print(humidity);
+  Oled.println(" %");
+  Oled.refreshDisplay();
+}
+
+void checkAlert() {
+  if (temperature > TEMP_LIMIT) {
+    Serial.println("ALERT: Temperature too high!");
+    Oled.println("!! TOO HOT !!");
+    Oled.refreshDisplay();
+  }
+}
 
 void setup() {
-
+  Serial.begin(115200);
+  Wire.begin();
+  Environment.begin();
+  Oled.begin();
 }
 
 void loop() {
-
+  unsigned long now = millis();
+  if (now - lastUpdate >= UPDATE_INTERVAL) {
+    lastUpdate = now;
+    readSensor();
+    updateDisplay();
+    checkAlert();
+  }
 }
