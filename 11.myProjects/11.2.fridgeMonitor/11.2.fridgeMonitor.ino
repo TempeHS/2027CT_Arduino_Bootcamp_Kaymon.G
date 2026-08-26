@@ -1,5 +1,5 @@
 /*
-  Author: 
+  Author:
   Learning Intention: Students will build a monitoring system that watches
   conditions and raises alerts, like the guardian inside a smart fridge
 
@@ -28,11 +28,97 @@
 
   Suggested Grove ports: Light A3, Buzzer D5, LED D6
 */
+const int LIGHT_PIN = A3;
+const int BUZZER_PIN = 5;
+const int LED_PIN = 6;
+
+// Calibration evidence:
+// Covered / door closed: replace with your reading
+// Uncovered / door open: replace with your reading
+const int DOOR_OPEN_THRESHOLD = 500; // Set halfway between your two readings
+
+const unsigned long ALARM_DELAY_MS = 10000;
+const unsigned long FLASH_INTERVAL_MS = 250;
+const unsigned long PLOT_INTERVAL_MS = 50;
+
+unsigned long doorOpenedAt = 0;
+unsigned long lastFlashAt = 0;
+unsigned long lastPlotAt = 0;
+
+bool doorWasOpen = false;
+bool ledState = false;
 
 void setup() {
+  pinMode(BUZZER_PIN, OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
 
+  digitalWrite(BUZZER_PIN, LOW);
+  digitalWrite(LED_PIN, LOW);
+
+  Serial.begin(115200);
 }
 
+/*
+Logic flowchart:
+START
+  |
+Read light sensor
+  |
+Is light above threshold? -- no --> Reset timer and turn alarm off
+  |
+ yes
+  |
+Has door been open for 10 seconds? -- no --> Keep alarm off
+  |
+ yes
+  |
+Turn buzzer on and flash LED using millis()
+  |
+Print light level and door state for Serial Plotter
+  |
+REPEAT
+*/
 void loop() {
+  unsigned long currentTime = millis();
+  int lightLevel = analogRead(LIGHT_PIN);
+  bool doorOpen = lightLevel > DOOR_OPEN_THRESHOLD;
+  bool alarmActive = false;
 
+  if (doorOpen) {
+    if (!doorWasOpen) {
+      doorOpenedAt = currentTime;
+    }
+
+    if (currentTime - doorOpenedAt >= ALARM_DELAY_MS) {
+      alarmActive = true;
+    }
+  } else {
+    doorOpenedAt = 0;
+    ledState = false;
+    digitalWrite(BUZZER_PIN, LOW);
+    digitalWrite(LED_PIN, LOW);
+  }
+
+  if (alarmActive) {
+    digitalWrite(BUZZER_PIN, HIGH);
+
+    if (currentTime - lastFlashAt >= FLASH_INTERVAL_MS) {
+      lastFlashAt = currentTime;
+      ledState = !ledState;
+      digitalWrite(LED_PIN, ledState);
+    }
+  } else if (doorOpen) {
+    digitalWrite(BUZZER_PIN, LOW);
+    digitalWrite(LED_PIN, LOW);
+  }
+
+  if (currentTime - lastPlotAt >= PLOT_INTERVAL_MS) {
+    lastPlotAt = currentTime;
+    Serial.print("Light:");
+    Serial.print(lightLevel);
+    Serial.print(" Door:");
+    Serial.println(doorOpen ? 1 : 0);
+  }
+
+  doorWasOpen = doorOpen;
 }

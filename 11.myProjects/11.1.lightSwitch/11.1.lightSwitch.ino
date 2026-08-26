@@ -8,77 +8,43 @@
 
   3. Suggested Grove ports: Button D4, Potentiometer A0, LED D6, Light sensor A3
 */
-class Led {
-  private:
-    int pin;          // properties: data each Led remembers
-    bool isOn;
+const int LED_PIN = 6;
+const int BUT_PIN = 4;
 
-  public:
-    Led(int ledPin) {  // constructor: runs when an object is created
-      pin = ledPin;
-      isOn = false;
-    }
-
-    void begin() {
-      pinMode(pin, OUTPUT);
-      digitalWrite(pin, LOW);
-    }
-
-    void turnOn() {    // methods: things every Led can do
-      digitalWrite(pin, HIGH);
-      isOn = true;
-    }
-
-    void turnOff() {
-      digitalWrite(pin, LOW);
-      isOn = false;
-    }
-
-    void toggle() {
-      if (isOn) {
-        turnOff();
-      } else {
-        turnOn();
-      }
-    }
-};
-
-  // the LED soldered onto the Uno itself
-
-
-class Button {
-  private:
-    int pin;
-
-  public:
-    Button(int buttonPin) {
-      pin = buttonPin;
-    }
-
-    void begin() {
-      pinMode(pin, INPUT);
-    }
-
-    bool isPressed() {
-      return digitalRead(pin) == HIGH; // Grove button reads HIGH when pressed
-    }
-};
-
-Led moduleLed(6);
-Led builtinLed(13);
-Button myButton(4); // Grove button on D4
+int mode = 0;
+int lastButtonState = LOW;
 
 void setup() {
-  moduleLed.begin();
-  builtinLed.begin();
-  myButton.begin();
-  builtinLed.turnOn();
+  pinMode(LED_PIN, OUTPUT);
+  pinMode(BUT_PIN, INPUT);
+  Serial.begin(115200);
 }
 
 void loop() {
-  if (myButton.isPressed()) {
-    moduleLed.toggle();
-    builtinLed.toggle();
-    delay(500);
+  int buttonState = digitalRead(BUT_PIN);
+
+  // Change mode once when the button is pressed.
+  if (buttonState == HIGH && lastButtonState == LOW) {
+    mode++;
+    if (mode > 2) {
+      mode = 0;
+    }
+
+    Serial.print("LED mode: ");
+    Serial.println(mode);
+    delay(200); // Simple button debounce
+  }
+
+  lastButtonState = buttonState;
+
+  if (mode == 0) {
+    digitalWrite(LED_PIN, LOW);       // Off
+  } else if (mode == 1) {
+    digitalWrite(LED_PIN, HIGH);      // On
+  } else {
+    digitalWrite(LED_PIN, HIGH);      // Blink
+    delay(300);
+    digitalWrite(LED_PIN, LOW);
+    delay(300);
   }
 }

@@ -47,7 +47,7 @@ void loop() {
   int value = analogRead(POT_PIN);
   int angle = map(value, 0, 1023, 0, 180);
   myServo.write(angle);
-
+  delay(15);
   }
       // move to the middle
 
