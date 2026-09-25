@@ -19,11 +19,52 @@
     https://www.youtube.com/watch?v=S_uaROFnWSg
     https://youtu.be/cUVryWbVkXk
 */
+class Led {
+  private:
+    int pin;
+    bool isOn;
+
+  public:
+    Led(int ledPin) {
+      pin = ledPin;
+      isOn = false;
+    }
+
+    void begin() {
+      pinMode(pin, OUTPUT);
+      digitalWrite(pin, LOW);
+    }
+
+    void turnOn() {
+      digitalWrite(pin, HIGH);
+      isOn = true;
+    }
+
+    void turnOff() {
+      digitalWrite(pin, LOW);
+      isOn = false;
+    }
+
+    void toggle() {
+      if (isOn) {
+        turnOff();
+      } else {
+        turnOn();
+      }
+    }
+};
+
+Led moduleLed(6);
+Led builtinLed(13);
 
 void setup() {
-
+  moduleLed.begin();
+  builtinLed.begin();
+  builtinLed.turnOn();
 }
 
 void loop() {
-
+  moduleLed.toggle();
+  builtinLed.toggle();
+  delay(500);
 }
